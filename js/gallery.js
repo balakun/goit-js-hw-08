@@ -64,54 +64,48 @@ const images = [
   },
 ];
 
-const galleryList = document.querySelector(".images");
-galleryList.insertAdjacentHTML("beforeend", createMarkup(images));
-galleryList.addEventListener("click", handleModalOpen);
+const galleryList = document.querySelector(".gallery");
 
-function createMarkup(arr) {
-  return arr
-    .map(({ preview, original, description }) => (
-      <li class="gallery-item">
-        <a class="gallery-link" href="large-image.jpg">
-          <img
-            class="gallery-image"
-            src="small-image.jpg"
-            data-source="large-image.jpg"
-            alt="Image description"
-          />
-        </a>
-      </li>
-    ))
-    .join("");
-}
+const galleryItemsMarkup = images
+  .map(({ preview, original, description }) => {
+    return `
+    <li class="gallery-item">
+      <a class="gallery-link" href="${original}">
+        <img
+          class="gallery-image"
+          src="${preview}"
+          data-source="${original}"
+          alt="${description}"
+        />
+      </a>
+    </li>
+  `;
+  })
+  .join("");
 
+galleryList.insertAdjacentHTML("beforeend", galleryItemsMarkup);
 
+galleryList.addEventListener("click", (event) => {
+  event.preventDefault();
 
+  const target = event.target;
+  if (target.nodeName !== "IMG") return;
 
+  const largeImageUrl = target.dataset.source;
+  console.log("Посилання на велике зображення:", largeImageUrl);
+});
 
+galleryList.addEventListener("click", (event) => {
+  event.preventDefault();
 
+  const target = event.target;
+  if (target.nodeName !== "IMG") return;
 
-// function handleModalOpen(event) {
-//   if (event.currentTarget === event.target) return; // перевірка на випадок того, якщо ми клікнемо не на карточку (нам не треба обробляти цей варіант)
+  const largeImageUrl = target.dataset.source;
 
-//   const currentProduct = event.target.closest(".item"); // шукає найближчий батьківський елемент, який підходить під цей селектор
-//   const productId = Number(currentProduct.dataset.id); // витягуємо айді з дата атрибуту товару на який клікнули
+  const instance = basicLightbox.create(`
+    <img src="${largeImageUrl}" width="800" height="600">
+  `);
 
-//   const product = products.find(({ id }) => id === productId); // шукаємо потрібний обʼєкт по айді
-
-//   console.log(product);
-
-//   // створюємо екземляр модального вікна
-//   const instance = basicLightbox.create(`
-// 	<div class="modal">
-//     <img src="${product.img}" alt="${product.name}" >
-//     <h2>${product.name}</h2>
-//     <p>Price: ${product.price}</p>
-//     <p>${product.description}</p>
-//   </div>
-// `);
-
-//   instance.show(); // метод, який відкриє модальне вікно
-// }
-
-//
+  instance.show();
+});
